@@ -1,0 +1,9 @@
+{
+    "name":  "QA Sample Model",
+    "version":  "1.0.0",
+    "framework":  "Demo",
+    "package":  {
+                    "sha256":  "10e059056cf05bcb9c280b3525e9528b40f43e3148733162a34762d2ae326910",
+                    "filename":  "model-package.zip"
+                }
+}
