@@ -14,11 +14,42 @@ const validMetadata = {
   name: "ModuLedger Test Model",
   description: "Automated Backend test model",
   image: "https://example.com/model.png",
+
+  attributes: [
+    {
+      trait_type: "Task",
+      value: "Text Generation",
+    },
+    {
+      trait_type: "Framework",
+      value: "PyTorch",
+    },
+    {
+      trait_type: "Version",
+      value: "1.0.0",
+    },
+  ],
+
+  properties: {
+    files: [
+      {
+        uri: "https://example.com/model.png",
+        type: "image/png",
+      },
+      {
+        uri: "ipfs://Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
+        type: "application/zip",
+      },
+    ],
+    category: "image",
+  },
+
   task: "Text Generation",
   framework: "PyTorch",
   version: "1.0.0",
   creatorWallet: "11111111111111111111111111111111",
   licenseRef: "https://example.com/license",
+
   modelFile: {
     cid: "Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
     uri: "ipfs://Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
@@ -57,7 +88,7 @@ after(async () => {
 });
 
 test("ModuLedger Backend automated tests", async (t) => {
-  await t.test("Valid manifest passes validation", () => {
+  await t.test("Valid Metaplex manifest passes validation", () => {
     assert.equal(isValidIpfsMetadata(validMetadata), true);
   });
 
@@ -98,6 +129,32 @@ test("ModuLedger Backend automated tests", async (t) => {
       modelFile: {
         cid: "Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
         uri: "ipfs://QmVdBut38Ax9ChqytVep7jFowG8mAcTe5c2Lwwj7SjC2nR",
+      },
+    };
+
+    assert.equal(isValidIpfsMetadata(metadata), false);
+  });
+
+  await t.test("Missing Metaplex attributes are rejected", () => {
+    const metadata = {
+      ...validMetadata,
+      attributes: [],
+    };
+
+    assert.equal(isValidIpfsMetadata(metadata), false);
+  });
+
+  await t.test("Missing metadata image file is rejected", () => {
+    const metadata = {
+      ...validMetadata,
+      properties: {
+        files: [
+          {
+            uri: validMetadata.modelFile.uri,
+            type: "application/zip",
+          },
+        ],
+        category: "image",
       },
     };
 
@@ -160,7 +217,9 @@ test("ModuLedger Backend automated tests", async (t) => {
 
     formData.append(
       "file",
-      new Blob(["This is not a ZIP archive"], { type: "application/zip" }),
+      new Blob(["This is not a ZIP archive"], {
+        type: "application/zip",
+      }),
       "fake-model.zip",
     );
 
