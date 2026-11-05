@@ -1,3 +1,2 @@
-// Test-only credential.
-// Automated tests never make real Pinata uploads.
-process.env.PINATA_JWT ||= "test-only-jwt-not-used";
+// Test-only Pinata credential. Tests must never perform real uploads.
+process.env.PINATA_JWT ||= 'test-only-jwt-not-used';
