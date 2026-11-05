@@ -1,0 +1,13 @@
+target/
+test-ledger/
+test-ledger-backup/
+node_modules/
+.anchor/
+.env
+.env.*
+id.json
+*-keypair.json
+*.log
+taker-wallet.json
+buyer-wallet.json
+user-keypair.json
