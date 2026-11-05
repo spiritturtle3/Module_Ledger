@@ -1,26 +1,37 @@
-'use client'
+"use client";
 
-import { ThemeProvider } from '@/components/theme-provider'
-import { ReactQueryProvider } from './react-query-provider'
-import { SolanaProvider } from '@/components/solana/solana-provider'
-import React from 'react'
-import WalletModalProviders from '@/provider/WalletProvider'
+import { CloverWalletAdapter } from "@solana/wallet-adapter-clover";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
+import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { type ReactNode, useMemo, useState } from "react";
+import { Toaster } from "sonner";
+import { SolanaClientsProvider } from "@/components/solana-clients-provider";
+import { SOLANA_RPC_ENDPOINT } from "@/lib/config";
 
+import "@solana/wallet-adapter-react-ui/styles.css";
 
-export function AppProviders({ children }: Readonly<{ children: React.ReactNode }>) {
+export function AppProviders({ children }: { children: ReactNode }) {
+  const [queryClient] = useState(() => new QueryClient());
+  const wallets = useMemo(
+    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new CloverWalletAdapter()],
+    [],
+  );
+
   return (
-    <ReactQueryProvider>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
- 
-        <WalletModalProviders>
-          <SolanaProvider>
-            {children}
-            </SolanaProvider>
-        </WalletModalProviders>
-      </ThemeProvider>
-    </ReactQueryProvider>
-  )
+    <ConnectionProvider endpoint={SOLANA_RPC_ENDPOINT}>
+      <WalletProvider wallets={wallets} autoConnect>
+        <WalletModalProvider>
+          <SolanaClientsProvider>
+            <QueryClientProvider client={queryClient}>
+              {children}
+              <Toaster theme="dark" position="bottom-right" />
+            </QueryClientProvider>
+          </SolanaClientsProvider>
+        </WalletModalProvider>
+      </WalletProvider>
+    </ConnectionProvider>
+  );
 }
-
-
-

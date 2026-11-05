@@ -1,36 +1,30 @@
-import type { Metadata } from 'next'
-import './globals.css'
-import { AppProviders } from '@/components/app-providers'
-import React from 'react'
-import PhantomNavbar from '@/components/Nav'
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { AppProviders } from "@/components/app-providers";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteHeader } from "@/components/site-header";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: 'ModuLedger | Own the intelligence',
-    template: '%s | ModuLedger',
+    default: "ModuLedger | Decentralized AI Model Marketplace",
+    template: "%s | ModuLedger",
   },
-  description:
-    'ModuLedger is a decentralized AI model marketplace for discovering, sharing, and owning verifiable AI models on Solana.',
-}
+  description: "Publish, discover, and own AI models with verifiable provenance on Solana.",
+  applicationName: "ModuLedger",
+  icons: { icon: "/favicon.svg" },
+};
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`antialiased`}>
+    <html lang="en">
+      <body>
         <AppProviders>
-          <PhantomNavbar />
+          <SiteHeader />
           {children}
+          <SiteFooter />
         </AppProviders>
       </body>
     </html>
-  )
-}
-declare global {
-  interface BigInt {
-    toJSON(): string
-  }
-}
-
-BigInt.prototype.toJSON = function () {
-  return this.toString()
+  );
 }
