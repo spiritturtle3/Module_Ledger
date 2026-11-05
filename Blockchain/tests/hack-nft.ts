@@ -1452,7 +1452,13 @@ describe("hack-nft", () => {
                 }
               }
             } catch (tokenErr) {
-              console.log(`Error fetching token data: ${tokenErr.message}`);
+              console.log(
+                `Error fetching token data: ${
+                  tokenErr instanceof Error
+                    ? tokenErr.message
+                    : String(tokenErr)
+                }`,
+              );
             }
 
             // Try to get JSON metadata
@@ -1491,7 +1497,11 @@ describe("hack-nft", () => {
                   }
                 } catch (metaplexErr) {
                   console.log(
-                    `Metaplex metadata fetch error: ${metaplexErr.message}`,
+                    `Metaplex metadata fetch error: ${
+                      metaplexErr instanceof Error
+                        ? metaplexErr.message
+                        : String(metaplexErr)
+                    }`,
                   );
                 }
 
@@ -1525,16 +1535,30 @@ describe("hack-nft", () => {
                     });
                   }
                 } catch (directFetchErr) {
-                  console.log(`Direct fetch error: ${directFetchErr.message}`);
+                  console.log(
+                    `Direct fetch error: ${
+                      directFetchErr instanceof Error
+                        ? directFetchErr.message
+                        : String(directFetchErr)
+                    }`,
+                  );
                 }
               } catch (metadataErr) {
                 console.log(
-                  `Error fetching JSON metadata: ${metadataErr.message}`,
+                  `Error fetching JSON metadata: ${
+                    metadataErr instanceof Error
+                      ? metadataErr.message
+                      : String(metadataErr)
+                  }`,
                 );
               }
             }
           } catch (err) {
-            console.log(`Error fetching NFT metadata: ${err.message}`);
+            console.log(
+              `Error fetching NFT metadata: ${
+                err instanceof Error ? err.message : String(err)
+              }`,
+            );
           }
         }
       } catch (err) {
