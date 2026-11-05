@@ -2,6 +2,11 @@ import * as anchor from "@coral-xyz/anchor";
 import NodeWallet from "@coral-xyz/anchor/dist/cjs/nodewallet";
 
 import {
+  getModelVerificationAction,
+  loadApprovedModels,
+} from "./model-admission";
+
+import {
   fetchDigitalAsset,
   findMasterEditionPda,
   findMetadataPda,
@@ -26,12 +31,24 @@ const EXPECTED_AUTHORITY = "9gEhqja83pNACqP9aorWgAnPpx6Z4Jtj9geVABF6WmQx";
 
 async function main() {
   const modelMintAddress = process.argv[2];
+  const dryRun = process.argv.includes("--dry-run");
+
+  if (modelMintAddress === "--dry-run") {
+    throw new Error(
+      "Usage: yarn ts-node scripts/verify-devnet-model.ts <MODEL_NFT_MINT> [--dry-run]"
+    );
+  }
 
   if (!modelMintAddress) {
     throw new Error(
-      "Usage: yarn ts-node scripts/verify-devnet-model.ts <MODEL_NFT_MINT>",
+      "Usage: yarn ts-node scripts/verify-devnet-model.ts <MODEL_NFT_MINT> [--dry-run]"
     );
   }
+
+  // Explicit per-NFT approval configuration is public configuration, not secret material.
+  const approvedModels = loadApprovedModels(
+    process.env.MODU_LEDGER_APPROVED_MODELS
+  );
 
   const provider = anchor.AnchorProvider.env();
   const wallet = provider.wallet as NodeWallet;
@@ -44,7 +61,7 @@ async function main() {
   // Only the existing collection authority may sign.
   if (wallet.publicKey.toBase58() !== EXPECTED_AUTHORITY) {
     throw new Error(
-      "Unauthorized wallet: connected wallet is not the configured collection authority.",
+      "Unauthorized wallet: connected wallet is not the configured collection authority."
     );
   }
 
@@ -58,7 +75,7 @@ async function main() {
   const umi = createUmi(provider.connection);
 
   const authorityKeypair = umi.eddsa.createKeypairFromSecretKey(
-    new Uint8Array(wallet.payer.secretKey),
+    new Uint8Array(wallet.payer.secretKey)
   );
 
   const authority = createSignerFromKeypair(umi, authorityKeypair);
@@ -79,7 +96,7 @@ async function main() {
 
   // Verify the canonical collection is a sized V1 collection.
   const collectionDetails = unwrapOption(
-    collectionAsset.metadata.collectionDetails,
+    collectionAsset.metadata.collectionDetails
   );
 
   if (!collectionDetails || collectionDetails.__kind !== "V1") {
@@ -92,7 +109,7 @@ async function main() {
     wallet.publicKey.toBase58()
   ) {
     throw new Error(
-      "Connected wallet is not the collection's current update authority.",
+      "Connected wallet is not the collection's current update authority."
     );
   }
 
@@ -109,13 +126,27 @@ async function main() {
 
   if (nftCollection.key.toString() !== COLLECTION_MINT) {
     throw new Error(
-      `Wrong collection. Expected ${COLLECTION_MINT}, received ${nftCollection.key}.`,
+      `Wrong collection. Expected ${COLLECTION_MINT}, received ${nftCollection.key}.`
     );
   }
 
-  if (nftCollection.verified) {
+  const modelCreators = unwrapOption(modelAsset.metadata.creators) ?? [];
+  const action = getModelVerificationAction(
+    {
+      suppliedMint: modelMint.toString(),
+      metadataMint: modelAsset.metadata.mint.toString(),
+      verifiedCreatorWallets: modelCreators
+        .filter((creator) => creator.verified)
+        .map((creator) => creator.address.toString()),
+      approvals: approvedModels,
+    },
+    nftCollection.verified,
+    dryRun
+  );
+
+  if (action === "already-verified") {
     console.log(
-      "Collection membership is already verified. No transaction needed.",
+      "Collection membership is already verified. No transaction needed."
     );
     return;
   }
@@ -125,7 +156,7 @@ async function main() {
   }
 
   // Dry-run mode: validate everything without submitting a transaction.
-  if (process.argv.includes("--dry-run")) {
+  if (action === "dry-run") {
     console.log("DRY RUN: All checks passed. No transaction submitted.");
     return;
   }
@@ -160,7 +191,7 @@ async function main() {
 
   if (typeof encodeBase58 !== "function") {
     throw new Error(
-      "Could not load the Base58 encoder for transaction signature formatting.",
+      "Could not load the Base58 encoder for transaction signature formatting."
     );
   }
 
@@ -169,7 +200,7 @@ async function main() {
   console.log("Verification transaction:", signature);
   console.log(
     "Explorer:",
-    `https://explorer.solana.com/tx/${signature}?cluster=devnet`,
+    `https://explorer.solana.com/tx/${signature}?cluster=devnet`
   );
 
   // Fetch metadata again and independently confirm the result.
@@ -186,7 +217,7 @@ async function main() {
   }
 
   console.log(
-    "SUCCESS: Model NFT belongs to the verified canonical collection.",
+    "SUCCESS: Model NFT belongs to the verified canonical collection."
   );
 }
 
