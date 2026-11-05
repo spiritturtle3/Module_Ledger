@@ -90,3 +90,53 @@ integration remain untested.
 - Expected: HTTP 400
 - Actual: HTTP 400
 - Result: PASS
+### FE-01: Frontend Dependency Installation
+- Command: npm ci
+- Result: PASS
+- Security finding: 8 moderate npm audit findings
+- Action: Investigate minimatch/ESLint dependency chain
+
+### FE-02: Frontend Production Build
+- Command: npm run build
+- Framework: Next.js 16.4.5
+- TypeScript: PASS
+- Compilation: PASS
+- Static generation: PASS
+- Overall result: PASS
+
+### FE-03: Frontend Browser Test
+- URL: http://localhost:3000
+- Result: Pending
+### FE-03: Frontend Development Server
+- Command: npm run dev
+- URL: http://localhost:3000
+- Expected: Homepage responds successfully
+- Actual: HTTP 200
+- Result: PASS (server response)
+- Browser UI verification: Pending
+- Warning: Cross-origin HMR request blocked from network IP
+### API-06: Real Pinata Model Upload
+- Endpoint: POST /api/ipfs/upload-file
+- Test file: qa/fixtures/model-package.zip
+- Expected: HTTP 201 with valid CID
+- Actual: HTTP 201
+- CID: QmbGZDuzsf1k5ZucB7So1F2vith3nfWFVEPtHL8xA8V9RN
+- Result: PASS
+- Notes: Real Pinata upload successful
+
+### API-07: IPFS Download Integrity
+- Expected: Downloaded ZIP SHA-256 matches original
+- Actual: Pending
+- Result: NOT RUN
+### API-08: Real NFT Metadata Upload
+- Endpoint: POST /api/ipfs/upload-metadata
+- Expected: Successful upload with valid CID
+- Actual: Upload successful
+- CID: QmTXt1nXFxQiwhkTgg9QTBhyWozN4isVS96MRwUU6GjHHm
+- Result: PASS
+### API-09: NFT Metadata Retrieval and Verification
+- Metadata CID: QmTXt1nXFxQiwhkTgg9QTBhyWozN4isVS96MRwUU6GjHHm
+- Expected: Retrieved metadata matches uploaded JSON
+- Actual: All checked fields matched
+- Result: PASS
+- Notes: Verified name, version, framework, modelCid, and image.
