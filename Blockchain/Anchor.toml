@@ -12,7 +12,7 @@ hack_nft = "AuR4iqjMWbEmHTpKHyKcNbT3ggSAWrcZdudwCcjPuEBT"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "Localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
