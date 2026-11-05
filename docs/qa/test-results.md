@@ -183,3 +183,29 @@ integration remain untested.
 
 ### Overall status
 Integration testing in progress. Not yet approved for real-money transactions.
+## Frontend Integration QA — 6 November 2026
+
+### Passed
+- Phantom wallet connected successfully using the browser extension.
+- Frontend Solana Devnet RPC responded successfully.
+- Frontend production build completed successfully.
+- Valid disposable model ZIP uploaded through frontend → backend → Pinata IPFS.
+- Cover image successfully uploaded to IPFS.
+- Model metadata manifest accepted and uploaded to IPFS.
+- Uploaded metadata JSON retrieved successfully using the Pinata gateway.
+- Invalid ZIP file rejected with: `File content does not match its declared file type.`
+
+### Findings
+- Wallet auto-connect intermittently produced `WalletConnectionError`; refresh/manual reconnection worked. Root cause and regression fix still require verification.
+- Homepage had an incorrect hardcoded Localnet label; Devnet RPC badge correction requires final review.
+- Frontend still displayed `NFT minting is not connected` during publishing.
+- Existing frontend dependency audit reported 25 vulnerabilities (2 high, 23 moderate).
+
+### Pending
+- Frontend wallet-signed NFT minting and verified collection checks.
+- NFT listing, buying, delisting and ownership transfer.
+- Marketplace, Collections and Dashboard synchronization with real on-chain data.
+- Final end-to-end regression after Member 2's integration PR.
+
+### Overall
+IPFS publishing integration and invalid-file rejection passed. Full NFT marketplace workflow remains pending frontend blockchain integration.
