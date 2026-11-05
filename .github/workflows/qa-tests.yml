@@ -1,27 +1,13 @@
-
-name: ModuLedger QA Tests
+﻿name: ModuLedger QA Tests
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  qa-tests:
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: '22'
-
-      - name: Run all QA tests
-        run: node --test --test-reporter=spec qa/tests/*.test.cjs
-
   backend-tests:
+    name: Backend tests and validation
     runs-on: ubuntu-24.04
 
     defaults:
@@ -42,14 +28,20 @@ jobs:
           cache: npm
           cache-dependency-path: Backend/package-lock.json
 
-      - name: Install backend dependencies
+      - name: Pin npm version
+        run: npm install --global npm@10.9.4
+
+      - name: Install dependencies
         run: npm ci
 
-      - name: Run backend automated tests
+      - name: Run all backend tests
         run: npm test
 
       - name: Type-check backend
         run: npm run typecheck
+
+      - name: Type-check tests
+        run: npm run typecheck:test
 
       - name: Build backend
         run: npm run build
