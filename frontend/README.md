@@ -1,58 +1,31 @@
 # ModuLedger frontend
 
-The ModuLedger frontend is a decentralized AI model marketplace built on Solana. It combines model metadata preparation, IPFS content references, NFT minting, collections, and marketplace ownership workflows.
+Next.js App Router frontend for the ModuLedger decentralized AI model marketplace.
 
-## Features
+## Requirements
 
-- **Connect Wallet**: Seamlessly connect your Solana wallet
-- **Discover AI models**: View model NFTs listed in the marketplace
-- **Create model NFTs**: Prepare metadata and mint AI model ownership records
-- **Create collections**: Organize related model NFTs
-- **List/Delist**: List models for sale or remove them from the marketplace
-- **Buy/Sell**: Purchase listed model NFTs with a connected Solana wallet
+- Node.js 22 LTS (Node 24 also satisfies the declared runtime range)
+- npm 10 or newer
+- The Express backend at `http://localhost:5000/api` for model, image, and metadata uploads
+- A Solana local validator at `http://127.0.0.1:8899` for wallet connectivity
 
-## Technology Stack
+The Solana program ID is configured as `AuR4iqjMWbEmHTpKHyKcNbT3ggSAWrcZdudwCcjPuEBT`. The reference ZIP's bundled IDL instead targets `711gctwBN1aGqzRhQbDD3qiescrzg4m9Zjj1ZGndLDis`; it is not used. Program instructions, collection verification, marketplace queries, listing, delisting, and purchasing remain unavailable until a matching authoritative IDL and collection configuration are provided. Anchor and Metaplex minting code are intentionally not wired to the stale IDL; those clients should be added with that integration milestone.
 
-- **Frontend**: Next.js, React, TypeScript, TailwindCSS
-- **Web3**: Solana Web3.js, Anchor, Metaplex SDK (UMI)
-- **State Management**: TanStack Query (React Query)
-- **UI Components**: Shadcn UI
+## Setup
 
-## Getting Started
+```bash
+cp .env.example .env.local
+npm ci
+npm run dev
+```
 
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+The upload flow posts files as multipart field `file` to `/ipfs/upload-file` and posts the backend's validated metadata schema to `/ipfs/upload-metadata`. The browser never talks to Pinata.
 
-## Project Structure
+## Commands
 
-- `src/components` - React components
-- `src/hooks` - Custom React hooks for Solana integration
-- `src/app` - Next.js app router pages
-- `src/lib` - Utility functions and shared logic
-
-## Solana Program
-
-The frontend connects to the existing Solana program with the following ID:
-`711gctwBN1aGqzRhQbDD3qiescrzg4m9Zjj1ZGndLDis`
-
-The program supports the following instructions:
-- `initialize` - Initialize a new marketplace
-- `listing` - List an NFT for sale
-- `delist` - Remove an NFT from sale
-- `purchase` - Buy an NFT
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+```bash
+npm run lint
+npm run format:check
+npm run typecheck
+npm run build
+```
