@@ -1,6 +1,8 @@
 import { API_BASE_URL } from "@/lib/config";
 import type { ModelMetadata, UploadResponse } from "@/types/api";
 
+export { buildModelMetadata } from "@/lib/model-metadata";
+
 async function readResponse<T>(response: Response): Promise<T> {
   const body = (await response.json().catch(() => null)) as (T & { message?: string }) | null;
 

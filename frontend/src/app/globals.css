@@ -761,6 +761,132 @@ select:focus-visible {
   gap: 12px;
   margin: 20px 0 26px;
 }
+.marketplace-transactions {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+.market-actions-bar,
+.transaction-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 17px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(20, 17, 27, 0.84);
+}
+.market-actions-bar p {
+  margin: 5px 0 0;
+  color: #9891a1;
+  font-size: 11px;
+}
+.market-actions-bar .button,
+.transaction-message a,
+.listing-card .button,
+.list-nft-panel > .button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.transaction-message {
+  color: #cfc6dc;
+  font-size: 12px;
+}
+.transaction-message a {
+  color: #c6b3ff;
+  text-decoration: none;
+}
+.listing-search {
+  flex: none;
+  width: min(520px, 100%);
+}
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  gap: 14px;
+}
+.listing-card {
+  display: grid;
+  gap: 17px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(24, 20, 34, 0.92), rgba(15, 12, 21, 0.96));
+}
+.listing-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.listing-card-top strong {
+  color: #ded2ff;
+  font-size: 17px;
+}
+.listing-icon {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  color: #c6b3ff;
+  border: 1px solid rgba(173, 143, 255, 0.15);
+  border-radius: 11px;
+  background: rgba(141, 102, 251, 0.1);
+}
+.listing-card dl {
+  display: grid;
+  gap: 11px;
+  margin: 0;
+}
+.listing-card dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.listing-card dt,
+.listing-card dd {
+  margin: 0;
+  font-size: 10px;
+}
+.listing-card dt {
+  color: #8c8496;
+}
+.listing-card dd,
+.listing-card dd a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #d8d0e0;
+  text-decoration: none;
+}
+.list-nft-panel {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr 1fr auto;
+  align-items: end;
+  gap: 15px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+  background: linear-gradient(145deg, rgba(24, 20, 34, 0.92), rgba(15, 12, 21, 0.96));
+}
+.list-nft-panel h2 {
+  margin: 6px 0 4px;
+  font-size: 16px;
+}
+.list-nft-panel p {
+  margin: 0;
+  color: #9891a1;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.list-nft-panel small {
+  color: #9f97aa;
+  font-size: 9px;
+}
 .search-field {
   position: relative;
   flex: 1;
@@ -1618,8 +1744,20 @@ select:focus-visible {
   .preview-panel {
     min-height: 300px;
   }
+  .list-nft-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 680px) {
+  .market-actions-bar,
+  .transaction-message {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .list-nft-panel {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
   .header-inner {
     height: 66px;
     padding: 0 18px;

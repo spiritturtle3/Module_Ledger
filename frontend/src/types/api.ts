@@ -19,5 +19,10 @@ export interface ModelMetadata {
   version: string;
   creatorWallet: string;
   licenseRef: string;
-  modelFile: { cid: string; uri: string };
+  modelFile: { cid: string; uri: string; mimeType: string };
+  attributes: Array<{ trait_type: string; value: string }>;
+  properties: {
+    category: "model";
+    files: Array<{ uri: string; type: string }>;
+  };
 }

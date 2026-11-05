@@ -6,14 +6,16 @@ import type { Server } from "node:http";
 import app from "../src/app.js";
 
 import { isValidIpfsMetadata } from "../src/validators/ipfs.validator.js";
+import { buildModelMetadata } from "../../frontend/src/lib/model-metadata.js";
 
 let server: Server;
 let baseUrl: string;
 
-const validMetadata = {
+const validMetadata = buildModelMetadata({
   name: "ModuLedger Test Model",
   description: "Automated Backend test model",
-  image: "https://example.com/model.png",
+  imageUri: "ipfs://QmVdBut38Ax9ChqytVep7jFowG8mAcTe5c2Lwwj7SjC2nR",
+  imageMimeType: "image/png",
   task: "Text Generation",
   framework: "PyTorch",
   version: "1.0.0",
@@ -22,8 +24,9 @@ const validMetadata = {
   modelFile: {
     cid: "Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
     uri: "ipfs://Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
+    mimeType: "application/zip",
   },
-};
+});
 
 before(async () => {
   server = app.listen(0);
@@ -57,8 +60,32 @@ after(async () => {
 });
 
 test("ModuLedger Backend automated tests", async (t) => {
-  await t.test("Valid manifest passes validation", () => {
+  await t.test("Frontend-generated metadata passes the backend contract", () => {
     assert.equal(isValidIpfsMetadata(validMetadata), true);
+    assert.equal(validMetadata.creatorWallet, "11111111111111111111111111111111");
+    assert.equal(validMetadata.modelFile.cid, "Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F");
+    assert.equal(validMetadata.modelFile.uri, "ipfs://Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F");
+    assert.equal(validMetadata.image, "ipfs://QmVdBut38Ax9ChqytVep7jFowG8mAcTe5c2Lwwj7SjC2nR");
+    assert.equal(validMetadata.properties.files[0].type, "application/zip");
+    assert.equal(validMetadata.properties.files[1].type, "image/png");
+  });
+
+  await t.test("Missing required metadata fields are rejected", () => {
+    const requiredFields = [
+      "name",
+      "image",
+      "task",
+      "framework",
+      "version",
+      "creatorWallet",
+      "licenseRef",
+      "modelFile",
+    ];
+    for (const field of requiredFields) {
+      const metadata: Record<string, unknown> = { ...validMetadata };
+      delete metadata[field];
+      assert.equal(isValidIpfsMetadata(metadata), false, field + " is required");
+    }
   });
 
   await t.test("Missing creator wallet is rejected", () => {
@@ -90,6 +117,21 @@ test("ModuLedger Backend automated tests", async (t) => {
     };
 
     assert.equal(isValidIpfsMetadata(metadata), false);
+  });
+
+  await t.test("Invalid metadata field and nested field types are rejected", () => {
+    assert.equal(isValidIpfsMetadata({ ...validMetadata, task: 42 }), false);
+    assert.equal(
+      isValidIpfsMetadata({ ...validMetadata, modelFile: "not an object" }),
+      false,
+    );
+    assert.equal(
+      isValidIpfsMetadata({
+        ...validMetadata,
+        modelFile: { ...validMetadata.modelFile, cid: 123 },
+      }),
+      false,
+    );
   });
 
   await t.test("Mismatched CID and URI are rejected", () => {

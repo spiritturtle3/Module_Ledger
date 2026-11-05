@@ -1,5 +1,5 @@
 import { AlertTriangle, ShieldCheck } from "lucide-react";
-import { SOLANA_PROGRAM_ID } from "@/lib/config";
+import { COLLECTION_MINT, SOLANA_PROGRAM_ID, SOLANA_RPC_ENDPOINT } from "@/lib/config";
 
 export function IntegrationNotice({ compact = false }: { compact?: boolean }) {
   return (
@@ -8,12 +8,11 @@ export function IntegrationNotice({ compact = false }: { compact?: boolean }) {
         <AlertTriangle size={17} />
       </div>
       <div>
-        <strong>On-chain marketplace actions are not connected yet</strong>
+        <strong>ModuLedger transactions are configured for Solana Devnet</strong>
         <p>
-          The provided program ID is configured as <code>{SOLANA_PROGRAM_ID}</code>, but the
-          reference IDL targets a different program. Listing, delisting, purchase, collection
-          verification, and minting stay disabled until the matching IDL and collection
-          configuration are available.
+          The app uses <code>{SOLANA_RPC_ENDPOINT}</code>, program <code>{SOLANA_PROGRAM_ID}</code>,
+          and canonical collection <code>{COLLECTION_MINT}</code>. Wallet approval is required for
+          every transaction; collection verification remains an authority-controlled step.
         </p>
       </div>
       <span className="notice-shield">

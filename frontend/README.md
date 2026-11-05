@@ -7,9 +7,9 @@ Next.js App Router frontend for the ModuLedger decentralized AI model marketplac
 - Node.js 22 LTS (Node 24 also satisfies the declared runtime range)
 - npm 10 or newer
 - The Express backend at `http://localhost:5000/api` for model, image, and metadata uploads
-- A Solana local validator at `http://127.0.0.1:8899` for wallet connectivity
+- Solana Devnet at `https://api.devnet.solana.com` for wallet connectivity and on-chain reads/writes
 
-The Solana program ID is configured as `AuR4iqjMWbEmHTpKHyKcNbT3ggSAWrcZdudwCcjPuEBT`. The reference ZIP's bundled IDL instead targets `711gctwBN1aGqzRhQbDD3qiescrzg4m9Zjj1ZGndLDis`; it is not used. Program instructions, collection verification, marketplace queries, listing, delisting, and purchasing remain unavailable until a matching authoritative IDL and collection configuration are provided. Anchor and Metaplex minting code are intentionally not wired to the stale IDL; those clients should be added with that integration milestone.
+The frontend uses the workspace IDL at `Blockchain/idl/hack_nft.json`, which matches the Anchor source program ID. The application is configured for Solana Devnet, program `AuR4iqjMWbEmHTpKHyKcNbT3ggSAWrcZdudwCcjPuEBT`, and canonical collection `2nJPccGnaZjjtRchVpJWH5bo4HdZzUk964UfQPHKDDyH`. Wallet approval is required to mint, list, buy, or delist. Newly minted NFTs are unverified collection members until the collection authority verifies them. Listing prices must exceed the marketplace fee; the deployed program charges one lamport per purchase.
 
 ## Setup
 

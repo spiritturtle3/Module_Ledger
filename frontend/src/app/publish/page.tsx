@@ -1,5 +1,7 @@
 "use client";
 
+import { createNft } from "@metaplex-foundation/mpl-token-metadata";
+import { base58, generateSigner, percentAmount, publicKey as umiPublicKey } from "@metaplex-foundation/umi";
 import { useWallet } from "@solana/wallet-adapter-react";
 import {
   Check,
@@ -13,22 +15,50 @@ import {
   X,
 } from "lucide-react";
 import type { ReactNode } from "react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useRef, useState } from "react";
 import { toast } from "sonner";
 import { IntegrationNotice } from "@/components/integration-notice";
-import { uploadFile, uploadMetadata } from "@/lib/api";
-import type { ModelMetadata, UploadResponse } from "@/types/api";
+import { useSolanaClients } from "@/components/solana-clients-provider";
+import { buildModelMetadata, uploadFile, uploadMetadata } from "@/lib/api";
+import { addressExplorerUrl, COLLECTION_MINT, transactionExplorerUrl } from "@/lib/config";
+import type { UploadResponse } from "@/types/api";
 
 type UploadResult = UploadResponse["data"];
 
+const MODEL_MIME_TYPES = new Set([
+  "application/zip",
+  "application/x-zip-compressed",
+  "application/octet-stream",
+]);
+
+const IMAGE_MIME_BY_EXTENSION: Record<string, string> = {
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+};
+
+function getExtension(filename: string): string {
+  return filename.slice(filename.lastIndexOf(".")).toLowerCase();
+}
+
 export default function PublishPage() {
   const { publicKey, connected } = useWallet();
+  const { umi } = useSolanaClients();
   const [modelFile, setModelFile] = useState<File | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [modelResult, setModelResult] = useState<UploadResult | null>(null);
   const [imageResult, setImageResult] = useState<UploadResult | null>(null);
   const [metadataResult, setMetadataResult] = useState<UploadResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [mintAddress, setMintAddress] = useState<string | null>(null);
+  const [mintSignature, setMintSignature] = useState<string | null>(null);
+  const submitLock = useRef(false);
+  const mintedPayload = useRef<string | null>(null);
+  const metadataUploadCache = useRef<{
+    payload: string;
+    result: UploadResult;
+  } | null>(null);
   const [form, setForm] = useState({
     name: "",
     description: "",
@@ -46,39 +76,103 @@ export default function PublishPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitLock.current) return;
     if (!connected || !publicKey) {
       toast.error("Connect a Solana wallet before creating the model manifest.");
+      return;
+    }
+    if (!umi || umi.identity.publicKey !== publicKey.toBase58()) {
+      toast.error("The Devnet wallet signer is not ready. Reconnect your wallet and retry.");
       return;
     }
     if (!modelFile || !imageFile) {
       toast.error("Select both a ZIP model package and a cover image.");
       return;
     }
+    if (
+      !form.name.trim() ||
+      !form.task.trim() ||
+      !form.framework.trim() ||
+      !form.version.trim() ||
+      !form.licenseRef.trim()
+    ) {
+      toast.error("Complete all required model details before uploading.");
+      return;
+    }
+    if (getExtension(modelFile.name) !== ".zip") {
+      toast.error("The model package must be a ZIP file.");
+      return;
+    }
+    const modelMimeType = modelFile.type || "application/octet-stream";
+    if (!MODEL_MIME_TYPES.has(modelMimeType.toLowerCase())) {
+      toast.error("The model package must use a supported ZIP MIME type.");
+      return;
+    }
+    const imageMimeType = IMAGE_MIME_BY_EXTENSION[getExtension(imageFile.name)];
+    if (!imageMimeType || (imageFile.type && imageFile.type.toLowerCase() !== imageMimeType)) {
+      toast.error("Choose a PNG, JPEG, or WEBP image with a matching file type.");
+      return;
+    }
+    submitLock.current = true;
     setBusy(true);
     setMetadataResult(null);
+    setMintAddress(null);
+    setMintSignature(null);
     try {
       const model = modelResult ?? (await uploadFile(modelFile));
       setModelResult(model);
       const image = imageResult ?? (await uploadFile(imageFile));
       setImageResult(image);
 
-      const manifest: ModelMetadata = {
+      const manifest = buildModelMetadata({
         name: form.name.trim(),
-        description: form.description.trim() || undefined,
-        image: image.ipfsUri,
+        description: form.description,
+        imageUri: image.ipfsUri,
+        imageMimeType,
         task: form.task.trim(),
         framework: form.framework,
         version: form.version.trim(),
         creatorWallet: publicKey.toBase58(),
         licenseRef: form.licenseRef.trim(),
-        modelFile: { cid: model.cid, uri: model.ipfsUri },
-      };
-      const result = await uploadMetadata(manifest);
+        modelFile: {
+          cid: model.cid,
+          uri: model.ipfsUri,
+          mimeType: modelMimeType,
+        },
+      });
+      const payload = JSON.stringify(manifest);
+      if (mintedPayload.current === payload) {
+        toast.info("This metadata payload has already been minted in this session.");
+        return;
+      }
+      const cached = metadataUploadCache.current;
+      const result = cached?.payload === payload ? cached.result : await uploadMetadata(manifest);
+      if (cached?.payload !== payload) {
+        metadataUploadCache.current = { payload, result };
+      }
       setMetadataResult(result);
-      toast.success("Model manifest uploaded successfully.");
+      toast.success("Metadata uploaded. Preparing the NFT mint on Devnet…");
+
+      const mint = generateSigner(umi);
+      const { signature } = await createNft(umi, {
+        mint,
+        name: form.name.trim(),
+        symbol: "MODU",
+        uri: result.ipfsUri,
+        sellerFeeBasisPoints: percentAmount(5.5),
+        creators: [{ address: umi.identity.publicKey, verified: true, share: 100 }],
+        collection: { key: umiPublicKey(COLLECTION_MINT), verified: false },
+        isMutable: true,
+      }).sendAndConfirm(umi);
+      const signatureText = base58.deserialize(signature)[0];
+      setMintAddress(mint.publicKey.toString());
+      setMintSignature(signatureText);
+      mintedPayload.current = payload;
+      toast.success("Model NFT minted and confirmed on Devnet.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "The upload could not be completed.");
     } finally {
+      submitLock.current = false;
       setBusy(false);
     }
   }
@@ -90,7 +184,7 @@ export default function PublishPage() {
           <div>
             <span className="eyebrow">CREATOR STUDIO</span>
             <h1>Publish an AI model</h1>
-            <p>Upload a model package and cover image, then prepare its validated IPFS manifest.</p>
+            <p>Upload model metadata and mint its NFT into the canonical ModuLedger collection.</p>
           </div>
           <span className="secure-note">
             <LockKeyhole size={14} /> Uploads go through your backend
@@ -230,11 +324,11 @@ export default function PublishPage() {
             >
               {busy ? (
                 <>
-                  <LoaderCircle className="spin" size={17} /> Uploading package, image & manifest…
+                  <LoaderCircle className="spin" size={17} /> Uploading and minting on Devnet…
                 </>
               ) : (
                 <>
-                  <CloudUpload size={17} /> Upload and prepare manifest
+                  <CloudUpload size={17} /> Upload and mint NFT
                 </>
               )}
             </button>
@@ -253,8 +347,8 @@ export default function PublishPage() {
                   <span className="ready-icon">
                     <Check size={22} />
                   </span>
-                  <h3>Manifest ready</h3>
-                  <p>Your metadata was accepted by the backend and uploaded to IPFS.</p>
+                  <h3>{mintAddress ? "NFT minted on Devnet" : "Metadata uploaded"}</h3>
+                  <p>{mintAddress ? "Your NFT is in the canonical collection and awaits collection verification." : "Metadata was uploaded. Minting may still be pending or may need another wallet approval."}</p>
                   <a
                     className="text-link"
                     href={metadataResult.gatewayUrl}
@@ -264,6 +358,18 @@ export default function PublishPage() {
                     Open manifest <ExternalLink size={14} />
                   </a>
                   <code className="uri-code">{metadataResult.ipfsUri}</code>
+                  {mintAddress && (
+                    <>
+                      <a className="text-link" href={addressExplorerUrl(mintAddress)} target="_blank" rel="noreferrer">
+                        NFT mint {mintAddress.slice(0, 8)}… <ExternalLink size={14} />
+                      </a>
+                      {mintSignature && (
+                        <a className="text-link" href={transactionExplorerUrl(mintSignature)} target="_blank" rel="noreferrer">
+                          Mint transaction {mintSignature.slice(0, 8)}… <ExternalLink size={14} />
+                        </a>
+                      )}
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="waiting-state">
@@ -288,10 +394,10 @@ export default function PublishPage() {
                 <LockKeyhole size={18} />
               </span>
               <div>
-                <strong>NFT minting is not connected</strong>
+                <strong>Collection verification is a separate step</strong>
                 <p>
-                  The matching Solana program IDL and a verified collection address are required.
-                  Your uploaded manifest is retained above; no mint transaction is sent.
+                  The NFT is minted with the configured collection and verified=false. It cannot be
+                  listed until an authorized collection verifier approves it on Devnet.
                 </p>
               </div>
             </div>

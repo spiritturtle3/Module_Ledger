@@ -2,7 +2,7 @@
 
 import { Circle, Radio } from "lucide-react";
 import { useEffect, useState } from "react";
-import { SOLANA_RPC_ENDPOINT } from "@/lib/config";
+import { addressExplorerUrl, SOLANA_PROGRAM_ID, SOLANA_RPC_ENDPOINT } from "@/lib/config";
 import {
   getLocalValidatorStatus,
   type LocalValidatorStatus,
@@ -33,7 +33,6 @@ export function LocalValidatorBadge() {
   }, []);
 
   const connected = status?.connected === true;
-
   const label = !status
     ? `Checking ${networkName}`
     : connected
@@ -46,7 +45,14 @@ export function LocalValidatorBadge() {
       title={status?.error}
     >
       {connected ? <Radio size={13} /> : <Circle size={9} />}
-      {label}
+      <a
+        href={addressExplorerUrl(SOLANA_PROGRAM_ID)}
+        target="_blank"
+        rel="noreferrer"
+        style={{ color: "inherit", textDecoration: "none" }}
+      >
+        {label}
+      </a>
     </span>
   );
 }
