@@ -32,3 +32,19 @@ None reported yet.
 
 Transaction signatures, screenshots and logs
 will be added after testing.
+
+## Local Package Integrity Tests
+
+| Test | Status |
+|---|---|
+| Manifest required fields | Passed |
+| Model package SHA-256 verification | Passed |
+| Modified package detection | Passed |
+
+Command:
+node --test --test-reporter=spec qa/tests/integrity.test.cjs
+
+Result: 3 passed, 0 failed.
+
+Note: These tests use local sample files.
+Backend and IPFS integration have not yet been tested.
