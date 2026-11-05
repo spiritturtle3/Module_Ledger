@@ -140,3 +140,19 @@ integration remain untested.
 - Actual: All checked fields matched
 - Result: PASS
 - Notes: Verified name, version, framework, modelCid, and image.
+## Backend Regression Testing — PR #6
+
+- Commit tested: e22d6bb
+- Dependency installation: PASS
+- Backend automated tests: PASS (10/10)
+- TypeScript build: PASS
+- New validation: Manifest, wallet, CID, and ZIP signature
+- Real Pinata upload after PR #6: NOT YET RETESTED
+
+## Backend Regression Testing — PR #6
+
+- Commit: e22d6bb
+- Backend unit tests: PASS (10/10)
+- TypeScript build: PASS
+- API-10: ZIP upload with file-signature validation — PENDING
+- API-11: Metadata upload with updated schema — PENDING
