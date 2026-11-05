@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "tsx --test tests/backend.test.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
@@ -35,5 +35,5 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
-  "private": "true"
+  "private": true
 }
