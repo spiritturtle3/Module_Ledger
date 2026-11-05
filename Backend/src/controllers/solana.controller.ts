@@ -28,7 +28,7 @@ export async function getSolanaHealth(
 
     res.status(200).json({
       success: true,
-      service: "solana-localnet",
+      service: env.solanaCluster === "devnet" ? "solana-devnet" : "solana-localnet",
       cluster: env.solanaCluster,
       rpcUrl: env.solanaRpcUrl,
       websocketUrl: env.solanaWsUrl,
@@ -49,7 +49,7 @@ export async function getSolanaHealth(
   } catch (error) {
     res.status(503).json({
       success: false,
-      service: "solana-localnet",
+      service: env.solanaCluster === "devnet" ? "solana-devnet" : "solana-localnet",
       cluster: env.solanaCluster,
       rpcUrl: env.solanaRpcUrl,
       websocketUrl: env.solanaWsUrl,
@@ -61,7 +61,7 @@ export async function getSolanaHealth(
       message:
         error instanceof Error
           ? error.message
-          : "Could not reach the local validator.",
+          : "Could not reach the configured Solana cluster.",
     });
   }
 }
