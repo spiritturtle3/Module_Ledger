@@ -1,0 +1,55 @@
+
+name: ModuLedger QA Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  qa-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run all QA tests
+        run: node --test --test-reporter=spec qa/tests/*.test.cjs
+
+  backend-tests:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Backend
+
+    env:
+      PINATA_JWT: ci-placeholder-for-validation-tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: Backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Run backend automated tests
+        run: npm test
+
+      - name: Type-check backend
+        run: npm run typecheck
+
+      - name: Build backend
+        run: npm run build
