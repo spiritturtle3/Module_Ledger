@@ -3,12 +3,9 @@ import assert from "node:assert/strict";
 
 import type { Server } from "node:http";
 
-import { isValidIpfsMetadata } from "../src/validators/ipfs.validator.js";
+import app from "../src/app.js";
 
-// A dummy JWT allows tests to import the application without
-// requiring real Pinata credentials.
-// No test below performs a real Pinata upload.
-process.env.PINATA_JWT ||= "test-only-jwt-not-used";
+import { isValidIpfsMetadata } from "../src/validators/ipfs.validator.js";
 
 let server: Server;
 let baseUrl: string;
@@ -29,8 +26,6 @@ const validMetadata = {
 };
 
 before(async () => {
-  const { default: app } = await import("../src/app.js");
-
   server = app.listen(0);
 
   await new Promise<void>((resolve, reject) => {
@@ -52,8 +47,11 @@ after(async () => {
 
   await new Promise<void>((resolve, reject) => {
     server.close((error) => {
-      if (error) reject(error);
-      else resolve();
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
     });
   });
 });
@@ -64,7 +62,9 @@ test("ModuLedger Backend automated tests", async (t) => {
   });
 
   await t.test("Missing creator wallet is rejected", () => {
-    const metadata = { ...validMetadata } as Record<string, unknown>;
+    const metadata = {
+      ...validMetadata,
+    } as Record<string, unknown>;
 
     delete metadata.creatorWallet;
 
@@ -119,7 +119,9 @@ test("ModuLedger Backend automated tests", async (t) => {
   });
 
   await t.test("Metadata API rejects missing creator wallet", async () => {
-    const metadata = { ...validMetadata } as Record<string, unknown>;
+    const metadata = {
+      ...validMetadata,
+    } as Record<string, unknown>;
 
     delete metadata.creatorWallet;
 
