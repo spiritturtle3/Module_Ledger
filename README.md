@@ -1,10 +1,13 @@
 # ModuLedger
 
-ModuLedger is a decentralized AI model marketplace built around Solana-based
-ownership and model metadata.
+ModuLedger is a decentralized AI model marketplace built around Solana-based ownership and model metadata.
 
-The current repository contains the frontend interface in [`frontend/`](./frontend/).
-The frontend currently provides sample marketplace discovery, wallet connection,
-and a local model/NFT draft preview. Backend API, IPFS storage, marketplace
-transactions, model downloads, collection management, and on-chain minting
-remain integration work for the responsible backend and blockchain teams.
+## Repository structure
+
+- [`frontend/`](./frontend/) contains the Next.js application, wallet connection, model/NFT workflows, and marketplace UI.
+- [`Backend/`](./Backend/) contains the Express API, IPFS upload routes, validation, and Pinata service integration.
+- [`docs/`](./docs/) contains integration and QA documentation.
+- [`qa/`](./qa/) contains backend API, validation, integrity, and smoke-test tooling.
+- [`.github/workflows/`](./.github/workflows/) contains repository QA automation.
+
+The frontend currently provides marketplace discovery, wallet connection, model/NFT draft workflows, collections, and marketplace transaction integration. Backend API, IPFS storage, marketplace transactions, model downloads, collection management, and on-chain minting should be verified against their respective service and blockchain environments before being described as production-ready.
