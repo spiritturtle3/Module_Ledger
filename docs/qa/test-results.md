@@ -156,3 +156,30 @@ integration remain untested.
 - TypeScript build: PASS
 - API-10: ZIP upload with file-signature validation — PENDING
 - API-11: Metadata upload with updated schema — PENDING
+## Final Integration QA — 5 November 2026
+
+### Passed
+- QA manifest and integrity tests: 15/15 passed.
+- Backend API and Solana PDA tests: 13/13 passed when run together.
+- Backend TypeScript checks and production build: passed.
+- Frontend dependency installation and production build: passed.
+- Frontend routes: Home, Marketplace, Publish, Collections and Dashboard confirmed working.
+- Solana Devnet program: deployed and executable.
+- Devnet marketplace PDA: matched the deployed marketplace address.
+- Backend health and Solana health endpoints: passed.
+- Backend marketplace API: successfully returned marketplace data.
+- Marketplace name: moduledger-demo.
+
+### Open findings
+- Wallet hydration mismatch: fix requires verification.
+- Wallet connection and Devnet configuration: final QA pending.
+- Frontend-to-backend-to-IPFS upload: end-to-end testing pending.
+- NFT minting: blocked by verified collection/model NFT prerequisites.
+- NFT listing, purchase and delisting: end-to-end testing blocked.
+- Backend npm test script runs only 3 PDA tests by default.
+- Backend dependency audit: 18 findings (6 high, 12 moderate).
+- Frontend dependency audit: 25 findings (2 high, 23 moderate).
+- MongoDB is optional for the current demo.
+
+### Overall status
+Integration testing in progress. Not yet approved for real-money transactions.
