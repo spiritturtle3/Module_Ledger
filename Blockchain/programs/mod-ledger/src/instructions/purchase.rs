@@ -76,7 +76,8 @@ impl <'info> Purchase<'info>{
         let cpi_ctx = CpiContext::new(cpi_program.clone(), cpi_accounts);
 
         let fee = self.marketplace.fee as u64;
-        let amount = self.listing.price.checked_sub(fee).unwrap();
+        let amount = self.listing.price.checked_sub(fee)
+            .ok_or(ProgramError::InvalidArgument)?;
 
         transfer(cpi_ctx, amount)?;
 
