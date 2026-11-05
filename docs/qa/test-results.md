@@ -73,3 +73,20 @@ node --test --test-reporter=spec
 Note: Tests use local fixtures and a provisional
 manifest validator. Backend, IPFS, and blockchain
 integration remain untested.
+
+### API-03: Upload Without File
+- Endpoint: POST /api/ipfs/upload-file
+- Expected: HTTP 400
+- Actual: HTTP 400
+- Result: PASS
+- Response: No file uploaded. Use the form-data field named file.
+### API-04: Malformed Metadata JSON
+- Endpoint: POST /api/ipfs/upload-metadata
+- Expected: HTTP 400
+- Actual: HTTP 400
+- Result: PASS
+### API-05: Wrong Upload Field
+- Endpoint: POST /api/ipfs/upload-file
+- Expected: HTTP 400
+- Actual: HTTP 400
+- Result: PASS
