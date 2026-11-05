@@ -1,21 +1,15 @@
-﻿import type {
-  Request,
-  Response,
-  NextFunction,
-} from 'express';
+﻿import type { Request, Response, NextFunction } from "express";
 
-import { unlink } from 'node:fs/promises';
+import { unlink } from "node:fs/promises";
 
 import {
   uploadFileToPinata,
   uploadMetadataToPinata,
-} from '../services/pinata.service.js';
+} from "../services/pinata.service.js";
 
-import {
-  isValidIpfsMetadata,
-} from '../validators/ipfs.validator.js';
+import { isValidIpfsMetadata } from "../validators/ipfs.validator.js";
 
-import { HttpError } from '../utils/http-error.js';
+import { HttpError } from "../utils/http-error.js";
 
 /**
  * Upload model file to IPFS.
@@ -23,7 +17,7 @@ import { HttpError } from '../utils/http-error.js';
 export async function uploadModelFile(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   const file = req.file;
 
@@ -31,8 +25,8 @@ export async function uploadModelFile(
     next(
       new HttpError(
         400,
-        'No file uploaded. Use the form-data field named file.'
-      )
+        "No file uploaded. Use the form-data field named file.",
+      ),
     );
 
     return;
@@ -42,21 +36,20 @@ export async function uploadModelFile(
     const result = await uploadFileToPinata(
       file.path,
       file.originalname,
-      file.mimetype
+      file.mimetype,
     );
 
     res.status(201).json({
       success: true,
 
-      message: 'File uploaded to IPFS successfully.',
+      message: "File uploaded to IPFS successfully.",
 
       data: {
         cid: result.cid,
 
         ipfsUri: `ipfs://${result.cid}`,
 
-        gatewayUrl:
-          `https://gateway.pinata.cloud/ipfs/${result.cid}`,
+        gatewayUrl: `https://gateway.pinata.cloud/ipfs/${result.cid}`,
 
         size: result.size,
 
@@ -69,10 +62,7 @@ export async function uploadModelFile(
     try {
       await unlink(file.path);
     } catch (cleanupError) {
-      console.error(
-        'Temporary file cleanup failed:',
-        cleanupError
-      );
+      console.error("Temporary file cleanup failed:", cleanupError);
     }
   }
 }
@@ -83,7 +73,7 @@ export async function uploadModelFile(
 export async function uploadNftMetadata(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ): Promise<void> {
   try {
     const metadata: unknown = req.body;
@@ -91,26 +81,23 @@ export async function uploadNftMetadata(
     if (!isValidIpfsMetadata(metadata)) {
       throw new HttpError(
         400,
-        'Invalid metadata. A non-empty name and image are required.'
+        "Invalid metadata. Required fields: name, image, task, framework, version, creatorWallet, licenseRef, and modelFile containing a valid CID and matching IPFS URI. Description is optional.",
       );
     }
 
-    const result = await uploadMetadataToPinata(
-      metadata
-    );
+    const result = await uploadMetadataToPinata(metadata);
 
     res.status(201).json({
       success: true,
 
-      message: 'NFT metadata uploaded successfully.',
+      message: "NFT metadata uploaded successfully.",
 
       data: {
         cid: result.cid,
 
         ipfsUri: `ipfs://${result.cid}`,
 
-        gatewayUrl:
-          `https://gateway.pinata.cloud/ipfs/${result.cid}`,
+        gatewayUrl: `https://gateway.pinata.cloud/ipfs/${result.cid}`,
 
         size: result.size,
 
