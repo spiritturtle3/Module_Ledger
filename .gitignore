@@ -1,0 +1,11 @@
+﻿
+# ModuLedger Backend
+Backend/node_modules/
+Backend/dist/
+
+# Backend secrets
+Backend/.env
+Backend/.env.*
+
+# Allow example environment file
+!Backend/.env.example
