@@ -1,12 +1,12 @@
-﻿import { Router } from 'express';
-
+import { Router } from 'express';
 import ipfsRoutes from './ipfs.routes.js';
+import solanaRoutes from './solana.routes.js';
 
 const router = Router();
 
 /**
  * GET /api/health
- * Check backend status.
+ * Check backend process status. Solana availability has its own health endpoint.
  */
 router.get('/health', (_req, res) => {
   res.status(200).json({
@@ -17,9 +17,7 @@ router.get('/health', (_req, res) => {
   });
 });
 
-/**
- * IPFS routes
- */
 router.use('/ipfs', ipfsRoutes);
+router.use('/solana', solanaRoutes);
 
 export default router;

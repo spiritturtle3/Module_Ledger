@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --import=tsx --import=./tests/setup.ts --test tests/solana-pda.test.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
@@ -18,13 +18,21 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@coral-xyz/anchor": "0.31.1",
+    "@metaplex-foundation/mpl-token-metadata": "3.4.0",
+    "@metaplex-foundation/umi": "1.6.0",
+    "@metaplex-foundation/umi-bundle-defaults": "1.6.0",
+    "@solana/spl-token": "0.4.13",
+    "@solana/web3.js": "1.99.0",
     "axios": "^1.21.0",
+    "bs58": "6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.9",
     "express": "^5.3.0",
     "express-rate-limit": "^8.7.3",
     "form-data": "^4.0.6",
     "helmet": "^8.3.0",
+    "mongoose": "8.15.1",
     "multer": "^2.5.0"
   },
   "devDependencies": {
@@ -35,5 +43,5 @@
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
   },
-  "private": "true"
+  "private": true
 }
