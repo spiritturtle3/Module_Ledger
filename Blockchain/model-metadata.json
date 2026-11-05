@@ -1,0 +1,44 @@
+{
+  "name": "ModuLedger Demo Model",
+  "symbol": "MODU",
+  "description": "A fine-tuned AI model for text generation, published on the ModuLedger marketplace.",
+  "image": "ipfs://QmWTx71CfagMG8pmvo1KJBu7WJk9LphAB9NEhhgZsGDzzg",
+  "external_url": "https://moduledger.com",
+  "attributes": [
+    {
+      "trait_type": "Task",
+      "value": "Text Generation"
+    },
+    {
+      "trait_type": "Framework",
+      "value": "PyTorch"
+    },
+    {
+      "trait_type": "Version",
+      "value": "1.0.0"
+    }
+  ],
+  "properties": {
+    "category": "model",
+    "files": [
+      {
+        "uri": "ipfs://QmWTx71CfagMG8pmvo1KJBu7WJk9LphAB9NEhhgZsGDzzg",
+        "type": "image/png"
+      },
+      {
+        "uri": "ipfs://Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
+        "type": "application/zip"
+      }
+    ],
+    "creators": [
+      {
+        "address": "9gEhqja83pNACqP9aorWgAnPpx6Z4Jtj9geVABF6WmQx",
+        "share": 100
+      }
+    ]
+  },
+  "modelFile": {
+    "cid": "Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F",
+    "uri": "ipfs://Qmf62U7tbC7VuCJsu3WGiUNHKj2CfwpbQnsByBhp51dt5F"
+  }
+}

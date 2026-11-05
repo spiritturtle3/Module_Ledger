@@ -39,9 +39,9 @@ async function main() {
 
   await createNft(umi, {
     mint: collectionMint,
-    name: "ModuLedger Collection",
+    name: "ModuLedger AI Models",
     symbol: "MODU",
-    uri: "https://sidd-metadata.s3.ap-south-1.amazonaws.com/metadata-1742751740128.json",
+    uri: "ipfs://bafkreicrwwftf4el42axdavehncfhfeaucmcpgzsevya5svsosoydo5s2y",
     sellerFeeBasisPoints: percentAmount(5.5),
     creators: [
       {

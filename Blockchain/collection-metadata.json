@@ -1,0 +1,24 @@
+{
+  "name": "ModuLedger AI Models",
+  "symbol": "MODU",
+  "description": "An official collection of AI model NFTs published through the ModuLedger decentralized marketplace.",
+  "image": "ipfs://QmWTx71CfagMG8pmvo1KJBu7WJk9LphAB9NEhhgZsGDzzg",
+  "external_url": "https://moduledger.com",
+  "seller_fee_basis_points": 550,
+  "attributes": [
+    {
+      "trait_type": "Category",
+      "value": "Artificial Intelligence"
+    }
+  ],
+  "properties": {
+    "category": "image",
+    "files": [
+      {
+        "uri": "ipfs://QmWTx71CfagMG8pmvo1KJBu7WJk9LphAB9NEhhgZsGDzzg",
+        "type": "image/png"
+      }
+    ],
+    "creators": []
+  }
+}
