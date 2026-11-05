@@ -48,3 +48,28 @@ Result: 3 passed, 0 failed.
 
 Note: These tests use local sample files.
 Backend and IPFS integration have not yet been tested.
+## Automated QA Summary
+
+- Package integrity tests: 3 passed
+- Manifest validation tests: 6 passed
+- Total automated tests: 9 passed
+- Failed: 0
+- CI: GitHub Actions passed
+
+Note: Tests use local fixtures and a provisional
+manifest validator. Backend, IPFS, and blockchain
+integration are not yet verified.
+
+## Local QA Automation Summary
+
+- Package integrity: 3 passed
+- Manifest validation: 6 passed
+- Manifest edge cases: 6 passed
+- Total: 15 passed, 0 failed
+
+Command:
+node --test --test-reporter=spec
+
+Note: Tests use local fixtures and a provisional
+manifest validator. Backend, IPFS, and blockchain
+integration remain untested.
