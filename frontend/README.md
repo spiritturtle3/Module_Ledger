@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ModuLedger frontend
+
+The ModuLedger frontend is a decentralized AI model marketplace built on Solana. It combines model metadata preparation, IPFS content references, NFT minting, collections, and marketplace ownership workflows.
+
+## Features
+
+- **Connect Wallet**: Seamlessly connect your Solana wallet
+- **Discover AI models**: View model NFTs listed in the marketplace
+- **Create model NFTs**: Prepare metadata and mint AI model ownership records
+- **Create collections**: Organize related model NFTs
+- **List/Delist**: List models for sale or remove them from the marketplace
+- **Buy/Sell**: Purchase listed model NFTs with a connected Solana wallet
+
+## Technology Stack
+
+- **Frontend**: Next.js, React, TypeScript, TailwindCSS
+- **Web3**: Solana Web3.js, Anchor, Metaplex SDK (UMI)
+- **State Management**: TanStack Query (React Query)
+- **UI Components**: Shadcn UI
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Project Structure
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `src/components` - React components
+- `src/hooks` - Custom React hooks for Solana integration
+- `src/app` - Next.js app router pages
+- `src/lib` - Utility functions and shared logic
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Solana Program
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The frontend connects to the existing Solana program with the following ID:
+`711gctwBN1aGqzRhQbDD3qiescrzg4m9Zjj1ZGndLDis`
 
-## Learn More
+The program supports the following instructions:
+- `initialize` - Initialize a new marketplace
+- `listing` - List an NFT for sale
+- `delist` - Remove an NFT from sale
+- `purchase` - Buy an NFT
 
-To learn more about Next.js, take a look at the following resources:
+## Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License - see the LICENSE file for details.
