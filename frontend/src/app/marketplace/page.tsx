@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { MarketplaceListings } from "@/components/marketplace-listings";
+import { DemoMarketplaceListings } from "@/components/demo-marketplace-listings";
 import { LocalValidatorBadge } from "@/components/local-validator-badge";
 
 export const metadata: Metadata = { title: "Marketplace" };
@@ -16,6 +17,7 @@ export default function MarketplacePage() {
           </div>
           <LocalValidatorBadge />
         </div>
+        <DemoMarketplaceListings />
         <MarketplaceListings />
       </div>
     </main>
