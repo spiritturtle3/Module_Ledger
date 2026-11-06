@@ -1,15 +1,23 @@
 "use client";
 
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Coins, Layers3, RefreshCw, WalletCards } from "lucide-react";
 import Link from "next/link";
 import { IntegrationNotice } from "@/components/integration-notice";
 import { getOwnedNftMints } from "@/lib/solana";
+import { fetchActiveListings } from "@/lib/marketplace-client";
 import { BUYER_REWARD_BASE_UNITS, REWARD_TOKEN_DECIMALS } from "@/types/blockchain";
 
 export default function DashboardPage() {
   const { publicKey, connected } = useWallet();
+  const { connection } = useConnection();
+  const listingsQuery = useQuery({
+    queryKey: ["marketplace-active-listings", connection.rpcEndpoint],
+    queryFn: () => fetchActiveListings(connection),
+    retry: false,
+    staleTime: 30_000,
+  });
   const ownedQuery = useQuery({
     queryKey: ["owned-nft-mints", publicKey?.toBase58()],
     queryFn: () => (publicKey ? getOwnedNftMints(publicKey.toBase58()) : Promise.resolve([])),
@@ -43,7 +51,7 @@ export default function DashboardPage() {
                     : (ownedQuery.data?.length ?? 0)
                 : "—"}
             </strong>
-            <small>{connected ? "Read from local validator" : "Connect a wallet to load"}</small>
+            <small>{connected ? "Read from Solana Devnet" : "Connect a wallet to load"}</small>
           </article>
           <article className="stat-card">
             <span className="stat-icon">
@@ -62,8 +70,8 @@ export default function DashboardPage() {
               <WalletCards size={18} />
             </span>
             <span className="stat-label">Marketplace listings</span>
-            <strong>Unavailable</strong>
-            <small>Waiting for matching program IDL</small>
+            <strong>{listingsQuery.isLoading ? "…" : listingsQuery.isError ? "—" : (listingsQuery.data?.length ?? 0)}</strong>
+            <small>{listingsQuery.isError ? "Listing RPC unavailable; try Marketplace" : "Active verified listings on Devnet"}</small>
           </article>
         </div>
         <section className="dashboard-panel">
@@ -89,12 +97,12 @@ export default function DashboardPage() {
               </span>
               <strong>Connect your wallet</strong>
               <p>
-                Your actual NFT token accounts will appear here after connecting to the local
-                validator.
+                Your actual NFT token accounts will appear here after connecting to Solana
+                Devnet.
               </p>
             </div>
           ) : ownedQuery.isLoading ? (
-            <div className="inline-empty">Reading token accounts from the local validator…</div>
+            <div className="inline-empty">Reading token accounts from Solana Devnet…</div>
           ) : ownedQuery.isError ? (
             <div className="inline-empty error-text">
               Could not load wallet assets: {(ownedQuery.error as Error).message}
@@ -106,6 +114,9 @@ export default function DashboardPage() {
                   <span className="mint-symbol">◎</span>
                   <code>{mint}</code>
                   <span className="mint-balance">1 NFT</span>
+                  <Link className="text-link" href={`/marketplace?mint=${encodeURIComponent(mint)}`}>
+                    Check / sell <ArrowRight size={14} />
+                  </Link>
                 </li>
               ))}
             </ul>

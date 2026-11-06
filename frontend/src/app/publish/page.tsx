@@ -14,6 +14,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { type FormEvent, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -368,6 +369,9 @@ export default function PublishPage() {
                           Mint transaction {mintSignature.slice(0, 8)}… <ExternalLink size={14} />
                         </a>
                       )}
+                      <Link className="text-link" href={`/marketplace?mint=${encodeURIComponent(mintAddress)}`}>
+                        Check NFT listing eligibility <ExternalLink size={14} />
+                      </Link>
                     </>
                   )}
                 </div>

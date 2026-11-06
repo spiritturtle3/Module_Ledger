@@ -114,13 +114,92 @@ export function createMarketplaceProgram(connection: Connection, wallet?: Anchor
   return new Program<HackNft>(idl as HackNft, provider);
 }
 
+export interface ListingEligibility {
+  canList: boolean;
+  message: string;
+}
+
+async function getNftCollection(connection: Connection, mint: PublicKey) {
+  // Read metadata from the same RPC cluster used for marketplace transactions.
+  const umi = createUmi(connection.rpcEndpoint).use(mplTokenMetadata());
+  const asset = await fetchDigitalAsset(umi, umiPublicKey(mint.toBase58()));
+  return unwrapOption(asset.metadata.collection);
+}
+
 export async function readVerifiedCollectionMembership(
+  connection: Connection,
   mint: PublicKey,
 ): Promise<boolean> {
-  const umi = createUmi(SOLANA_RPC_ENDPOINT).use(mplTokenMetadata());
-  const asset = await fetchDigitalAsset(umi, umiPublicKey(mint.toBase58()));
-  const collection = unwrapOption(asset.metadata.collection);
-  return collection?.verified === true && collection.key === umiPublicKey(COLLECTION.toBase58());
+  const collection = await getNftCollection(connection, mint);
+  return collection?.verified === true && collection.key.toString() === COLLECTION.toBase58();
+}
+
+/** Read-only checks. Never signs a transaction or weakens the on-chain verified-collection rule. */
+export async function inspectListingEligibility(
+  connection: Connection,
+  owner: PublicKey,
+  mintText: string,
+): Promise<ListingEligibility> {
+  let mint: PublicKey;
+  try {
+    mint = new PublicKey(mintText.trim());
+  } catch {
+    return { canList: false, message: "Enter a valid Solana NFT mint address (case-sensitive)." };
+  }
+
+  let collection;
+  try {
+    collection = await getNftCollection(connection, mint);
+  } catch (error) {
+    throw new Error(`Could not load NFT metadata on Devnet: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (!collection) {
+    return { canList: false, message: "This NFT has no collection reference. Only ModuLedger collection NFTs can be listed." };
+  }
+  if (collection.key.toString() !== COLLECTION.toBase58()) {
+    return {
+      canList: false,
+      message: `This NFT belongs to a different collection (${collection.key.toString()}). Mint a new NFT in the current ModuLedger collection; the old NFT cannot be relinked by changing the website configuration.`,
+    };
+  }
+  if (!collection.verified) {
+    return {
+      canList: false,
+      message: "NFT is in the correct collection but is not verified yet. The authorized collection wallet must approve and verify it before listing.",
+    };
+  }
+
+  // Checking the mint itself prevents a zero-decimal fungible token from being listed as an NFT.
+  const mintAccount = await connection.getParsedAccountInfo(mint, "confirmed");
+  const mintData = mintAccount.value?.data;
+  if (!mintData || !("parsed" in mintData)) {
+    return { canList: false, message: "Could not read this NFT's SPL Token mint on Devnet." };
+  }
+  const parsedMint = mintData.parsed as { info?: { supply?: string; decimals?: number } };
+  if (parsedMint.info?.supply !== "1" || parsedMint.info?.decimals !== 0) {
+    return { canList: false, message: "This mint must have total supply 1 and zero decimals." };
+  }
+
+  const ownerAta = deriveAta(owner, mint);
+  try {
+    const balance = await connection.getTokenAccountBalance(ownerAta, "confirmed");
+    if (balance.value.amount !== "1" || balance.value.decimals !== 0) {
+      return { canList: false, message: "Your connected wallet does not hold exactly one of this NFT." };
+    }
+  } catch (error) {
+    // A missing associated token account is expected if another wallet owns the NFT.
+    const account = await connection.getAccountInfo(ownerAta, "confirmed");
+    if (!account) {
+      return { canList: false, message: "This NFT is not in the connected wallet. Connect the owning Phantom wallet." };
+    }
+    throw error;
+  }
+
+  const listingAddress = deriveListing(mint);
+  if (await connection.getAccountInfo(listingAddress, "confirmed")) {
+    return { canList: false, message: "This NFT already has an on-chain listing. Refresh the marketplace to view or delist it." };
+  }
+  return { canList: true, message: "Ready to list: correct verified collection, unique NFT, and wallet ownership confirmed." };
 }
 
 async function assertOneOwnedNft(connection: Connection, owner: PublicKey, mint: PublicKey) {
@@ -162,7 +241,7 @@ export async function fetchActiveListings(connection: Connection): Promise<Listi
       if (!listing.equals(publicKey) || priceLamports <= fee) return null;
       try {
         await assertOneVaultNft(connection, listing, mint);
-        if (!(await readVerifiedCollectionMembership(mint))) return null;
+        if (!(await readVerifiedCollectionMembership(connection, mint))) return null;
         return {
           address: publicKey.toBase58(),
           maker: account.maker.toBase58(),
@@ -187,10 +266,9 @@ export async function listVerifiedNft(
   const mint = new PublicKey(mintText.trim());
   const program = createMarketplaceProgram(connection, wallet);
   await assertPriceExceedsFee(program, price);
+  const eligibility = await inspectListingEligibility(connection, wallet.publicKey, mintText);
+  if (!eligibility.canList) throw new Error(eligibility.message);
   const makerAta = await assertOneOwnedNft(connection, wallet.publicKey, mint);
-  if (!(await readVerifiedCollectionMembership(mint))) {
-    throw new Error("Only NFTs verified in the canonical ModuLedger collection can be listed.");
-  }
 
   const listing = deriveListing(mint);
   const vault = deriveAta(listing, mint);
@@ -233,6 +311,9 @@ export async function purchaseListing(
   const price = BigInt(account.price.toString());
   await assertPriceExceedsFee(program, price);
   const vault = await assertOneVaultNft(connection, listing, mint);
+  if (!(await readVerifiedCollectionMembership(connection, mint))) {
+    throw new Error("NFT collection verification no longer matches the configured ModuLedger collection. Refresh listings.");
+  }
   const signature = await program.methods
     .purchase()
     .accountsPartial({

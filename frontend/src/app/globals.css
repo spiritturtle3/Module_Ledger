@@ -865,7 +865,7 @@ select:focus-visible {
 }
 .list-nft-panel {
   display: grid;
-  grid-template-columns: 1.2fr 1.4fr 1fr auto;
+  grid-template-columns: 1.15fr minmax(180px, 1.3fr) minmax(115px, .8fr) auto auto;
   align-items: end;
   gap: 15px;
   padding: 20px;
@@ -886,6 +886,23 @@ select:focus-visible {
 .list-nft-panel small {
   color: #9f97aa;
   font-size: 9px;
+}
+.listing-check-result {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 12px !important;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.listing-check-ready {
+  color: #9be4bb !important;
+  border-color: rgba(105, 200, 150, 0.3);
+}
+.list-nft-panel .button-outline {
+  white-space: nowrap;
 }
 .search-field {
   position: relative;
