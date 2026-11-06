@@ -1,38 +1,67 @@
 "use client";
 
+import { useConnection } from "@solana/wallet-adapter-react";
 import { Circle, Radio } from "lucide-react";
 import { useEffect, useState } from "react";
-import { addressExplorerUrl, SOLANA_PROGRAM_ID, SOLANA_RPC_ENDPOINT } from "@/lib/config";
 import {
-  getLocalValidatorStatus,
-  type LocalValidatorStatus,
-} from "@/lib/solana";
+  addressExplorerUrl,
+  SOLANA_PROGRAM_ID,
+} from "@/lib/config";
 
-const networkName = SOLANA_RPC_ENDPOINT.includes("devnet")
-  ? "Solana Devnet RPC"
-  : SOLANA_RPC_ENDPOINT.includes("mainnet")
-    ? "Solana Mainnet RPC"
-    : SOLANA_RPC_ENDPOINT.includes("127.0.0.1") ||
-        SOLANA_RPC_ENDPOINT.includes("localhost")
-      ? "Local validator"
-      : "Solana RPC";
+interface RpcStatus {
+  connected: boolean;
+  version?: string;
+  error?: string;
+}
 
 export function LocalValidatorBadge() {
-  const [status, setStatus] = useState<LocalValidatorStatus | null>(null);
+  const { connection } = useConnection();
+
+  const [status, setStatus] = useState<RpcStatus | null>(null);
+
+  const endpoint = connection.rpcEndpoint;
+
+  const networkName = endpoint.includes("devnet")
+    ? "Solana Devnet RPC"
+    : endpoint.includes("mainnet")
+      ? "Solana Mainnet RPC"
+      : endpoint.includes("127.0.0.1") ||
+          endpoint.includes("localhost")
+        ? "Local validator"
+        : "Solana RPC";
 
   useEffect(() => {
     let active = true;
 
-    getLocalValidatorStatus().then((result) => {
-      if (active) setStatus(result);
-    });
+    connection
+      .getVersion()
+      .then((version) => {
+        if (active) {
+          setStatus({
+            connected: true,
+            version: version["solana-core"],
+          });
+        }
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setStatus({
+            connected: false,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Solana RPC request failed",
+          });
+        }
+      });
 
     return () => {
       active = false;
     };
-  }, []);
+  }, [connection]);
 
   const connected = status?.connected === true;
+
   const label = !status
     ? `Checking ${networkName}`
     : connected
@@ -45,13 +74,16 @@ export function LocalValidatorBadge() {
       title={status?.error}
     >
       {connected ? <Radio size={13} /> : <Circle size={9} />}
+
+      <span>{label}</span>
+
       <a
         href={addressExplorerUrl(SOLANA_PROGRAM_ID)}
         target="_blank"
-        rel="noreferrer"
-        style={{ color: "inherit", textDecoration: "none" }}
+        rel="noopener noreferrer"
+        title="View ModuLedger program on Solana Explorer"
       >
-        {label}
+        View program
       </a>
     </span>
   );
