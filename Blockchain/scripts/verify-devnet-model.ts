@@ -25,9 +25,9 @@ import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
 const DEVNET_RPC = "https://api.devnet.solana.com";
 
-const COLLECTION_MINT = "2nJPccGnaZjjtRchVpJWH5bo4HdZzUk964UfQPHKDDyH";
+const COLLECTION_MINT = "Gc4UXzL27XyQAP2CMEazE8kVDxGSmXWjonmPhkA51JJR";
 
-const EXPECTED_AUTHORITY = "9gEhqja83pNACqP9aorWgAnPpx6Z4Jtj9geVABF6WmQx";
+const EXPECTED_AUTHORITY = "d3jdUMFzAtv4tbJxnQgwe1gEafytegBFKL5rYUGjVym";
 
 async function main() {
   const modelMintAddress = process.argv[2];

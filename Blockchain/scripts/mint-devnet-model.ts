@@ -19,7 +19,7 @@ import {
 
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
-const COLLECTION_MINT = "2nJPccGnaZjjtRchVpJWH5bo4HdZzUk964UfQPHKDDyH";
+const COLLECTION_MINT = "Gc4UXzL27XyQAP2CMEazE8kVDxGSmXWjonmPhkA51JJR";
 
 const MODEL_METADATA_URI =
   "ipfs://bafkreiei2cozob5xpqvtm6lebodlhl4653ouvwtyg7pz7og3vgc3hpleq4";
